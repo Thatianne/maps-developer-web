@@ -29,6 +29,7 @@ aside form .input-group {
 
 aside form .input-group .input-block {
   margin-top: 0;
+  width: 50%;
 }
 
 aside form .input-block label {
