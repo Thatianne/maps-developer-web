@@ -1,34 +1,43 @@
 import React from 'react'
+import api from './services/api'
 
 import './global.css'
 import './App.css'
 import './Sidebar.css'
 import './Main.css'
 
+import DevItem from './components/DevItem'
+import DevForm from './components/DevForm'
+
 export default class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      latitude: 0,
-      longitude: 0,
-      githubUsername: '',
-      techs: ''
+      devs: []
     }
+
+    this.add = this.add.bind(this)
+    this.loadDevs = this.loadDevs.bind(this)
   }
 
   componentDidMount() {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords
-        this.setState({
-          latitude,
-          longitude
-        })
-      },
-      err => console.log(err),
-      {
-        timeout: 30000
-      })
+    this.loadDevs()
+  }
+
+  async add(data) {
+    const res = await api.post('/devs', data)
+
+    this.setState({
+      devs: [
+        ...this.state.devs,
+        res.data
+      ]
+    })
+  }
+
+  async loadDevs() {
+    const res = await api.get('/devs')
+    this.setState({ devs: res.data })
   }
 
   render() {
@@ -36,96 +45,13 @@ export default class App extends React.Component {
       <div id="app">
         <aside>
           <strong>Cadastrar</strong>
-          <form>
-            <div className="input-block">
-              <label htmlFor="username">Usuário do Github</label>
-              <input name="username" id="username" required />
-            </div>
-
-            <div className="input-block">
-              <label htmlFor="techs">Tecnologias</label>
-              <input name="techs" id="techs" required />
-            </div>
-
-            <div className="input-group">
-              <div className="input-block">
-                <label htmlFor="latitude">Latitude</label>
-                <input
-                  type="number"
-                  name="latitude"
-                  id="latitude"
-                  value={this.state.latitude}
-                  onChange={e => this.setState({ latitude: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="input-block">
-                <label htmlFor="longitude">Longitude</label>
-                <input
-                  type="number"
-                  name="longitude"
-                  id="longitude"
-                  value={this.state.longitude}
-                  onChange={e => this.setState({ longitude: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <button type="submit">Salvar</button>
-
-          </form>
+          <DevForm onSubmit={this.add} />
         </aside>
         <main>
           <ul>
-            <li className="dev-item">
-              <header>
-                <img src="https://avatars3.githubusercontent.com/u/14905849?v=4" alt="Thatianne Carvalho" />
-                <div className="user-info">
-                  <strong>Thatianne Carvalho</strong>
-                  <span>Javascript, Vue, PHP</span>
-                </div>
-              </header>
-              <p>Desenvolvedora web e estudante de Engenharia de computação </p>
-              <a href="https://github.com/Thatianne">Acessar perfil no Github</a>
-            </li>
-
-            <li className="dev-item">
-              <header>
-                <img src="https://avatars3.githubusercontent.com/u/14905849?v=4" alt="Thatianne Carvalho" />
-                <div className="user-info">
-                  <strong>Thatianne Carvalho</strong>
-                  <span>Javascript, Vue, PHP</span>
-                </div>
-              </header>
-              <p>Desenvolvedora web e estudante de Engenharia de computação </p>
-              <a href="https://github.com/Thatianne">Acessar perfil no Github</a>
-            </li>
-
-            <li className="dev-item">
-              <header>
-                <img src="https://avatars3.githubusercontent.com/u/14905849?v=4" alt="Thatianne Carvalho" />
-                <div className="user-info">
-                  <strong>Thatianne Carvalho</strong>
-                  <span>Javascript, Vue, PHP</span>
-                </div>
-              </header>
-              <p>Desenvolvedora web e estudante de Engenharia de computação </p>
-              <a href="https://github.com/Thatianne">Acessar perfil no Github</a>
-            </li>
-
-            <li className="dev-item">
-              <header>
-                <img src="https://avatars3.githubusercontent.com/u/14905849?v=4" alt="Thatianne Carvalho" />
-                <div className="user-info">
-                  <strong>Thatianne Carvalho</strong>
-                  <span>Javascript, Vue, PHP</span>
-                </div>
-              </header>
-              <p>Desenvolvedora web e estudante de Engenharia de computação </p>
-              <a href="https://github.com/Thatianne">Acessar perfil no Github</a>
-            </li>
+            {this.state.devs.map(dev => (
+              <DevItem key={dev._id} dev={dev} />
+            ))}
           </ul>
         </main>
       </div>
